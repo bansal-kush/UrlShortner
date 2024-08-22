@@ -8,6 +8,7 @@ import com.app.UrlShortener.model.ShortenUrlResponse;
 import com.app.UrlShortener.model.ShortenedUrl;
 import com.app.UrlShortener.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class UrlService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    CacheService<String,String> cacheService;
     private static final int NUM_CHARS_SHORT_LINK = 7;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static  final String BASE_URL = "http://localhost:8080/";
@@ -84,12 +87,22 @@ public class UrlService {
         }
     }
 
+    public String getLongUrlFromShortUrl(String shortUrl) {
+        if(!cacheService.containsKey(shortUrl)) {
+            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(shortUrl);
+            cacheService.put(shortUrl, shortenedUrl.getLongUrl());
+        }else{
+            System.out.println("Cache hit");
+        }
+        return cacheService.get(shortUrl);
+    }
+
     public RedirectView visitUrl(String shortUrl) {
         try{
 
             RedirectView redirectView = new RedirectView();
-            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(shortUrl);
-            redirectView.setUrl(shortenedUrl.getLongUrl());
+            String longUrl = getLongUrlFromShortUrl(shortUrl);
+            redirectView.setUrl(longUrl);
             return redirectView;
         }catch (Exception exception) {
             System.out.println("Invalid url hit");
