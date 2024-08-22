@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class UrlController {
@@ -18,4 +19,8 @@ public class UrlController {
         return urlService.createShortenedUrl(userDetails.getUsername(), shortenUrlRequest);
     }
 
+    @GetMapping("/{shortUrl}")
+    private RedirectView visitUrl(@PathVariable String shortUrl) {
+        return  urlService.visitUrl(shortUrl);
+    }
 }
