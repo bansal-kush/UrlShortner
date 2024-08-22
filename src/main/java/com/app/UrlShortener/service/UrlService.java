@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.Random;
@@ -65,10 +66,22 @@ public class UrlService {
                 result[i] = ALPHABET.charAt(randomIndex);
             }
             String shortUrl = new String(result);
-            // make sure the short link isn't already used
             if (!checkShortLinkExists(shortUrl)) {
                 return shortUrl;
             }
+        }
+    }
+
+    public RedirectView visitUrl(String shortUrl) {
+        try{
+            String completeShortUrl = BASE_URL + shortUrl;
+            RedirectView redirectView = new RedirectView();
+            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(completeShortUrl);
+            redirectView.setUrl(shortenedUrl.getLongUrl());
+            return redirectView;
+        }catch (Exception exception) {
+            System.out.println("Invalid url hit");
+            return new RedirectView();
         }
     }
 }
