@@ -3,14 +3,11 @@ package com.app.UrlShortener.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class ShortenUrlRequest {
-    @URL(message = "Not a valid url")
+public class ShortenUrlResponse {
+    private String shortUrl;
     private String longUrl;
-
 }
