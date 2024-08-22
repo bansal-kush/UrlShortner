@@ -31,16 +31,28 @@ public class UrlService {
 
     public ResponseEntity<?> createShortenedUrl(String username, ShortenUrlRequest shortenUrlRequest) {
         try{
+            String shortUrlToUse = "";
+            if(shortenUrlRequest.getCustomUrl() != null) {
+                if(checkShortLinkExists(shortenUrlRequest.getCustomUrl())) {
+                    return new ResponseEntity<>("URL already in use", HttpStatus.OK);
+                }
+                shortUrlToUse = shortenUrlRequest.getCustomUrl();
+            }
+
+            if(shortUrlToUse.isEmpty()) {
+                shortUrlToUse = generateRandomShortUrl();
+            }
+
             ShortenedUrl shortenedUrl = new ShortenedUrl();
             shortenedUrl.setLongUrl(shortenUrlRequest.getLongUrl());
-            shortenedUrl.setShortUrl(BASE_URL + generateRandomShortUrl());
+            shortenedUrl.setShortUrl(shortUrlToUse);
             User user = userRepository.findUserByUsername(username);
             shortenedUrl.setUser(user);
             List<ShortenedUrl> shortenedUrls = user.getShortenedUrls();
             shortenedUrls.add(shortenedUrl);
             userRepository.save(user);
             ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse();
-            shortenUrlResponse.setShortUrl(shortenedUrl.getShortUrl());
+            shortenUrlResponse.setShortUrl(BASE_URL + shortenedUrl.getShortUrl());
             shortenUrlResponse.setLongUrl(shortenedUrl.getLongUrl());
 
             return  new ResponseEntity<>(shortenUrlResponse, HttpStatus.OK);
@@ -74,14 +86,14 @@ public class UrlService {
 
     public RedirectView visitUrl(String shortUrl) {
         try{
-            String completeShortUrl = BASE_URL + shortUrl;
+
             RedirectView redirectView = new RedirectView();
-            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(completeShortUrl);
+            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(shortUrl);
             redirectView.setUrl(shortenedUrl.getLongUrl());
             return redirectView;
         }catch (Exception exception) {
             System.out.println("Invalid url hit");
-            return new RedirectView();
+            return new RedirectView("https://en.wikipedia.org/wiki/HTTP_404");
         }
     }
 }

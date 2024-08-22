@@ -3,6 +3,7 @@ package com.app.UrlShortener.controller;
 
 import com.app.UrlShortener.model.ShortenUrlRequest;
 import com.app.UrlShortener.service.UrlService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +16,7 @@ public class UrlController {
     @Autowired
     UrlService urlService;
     @PostMapping("/create")
-    private ResponseEntity<?> createShortenedUrl(@AuthenticationPrincipal UserDetails userDetails,  @RequestBody ShortenUrlRequest shortenUrlRequest) {
+    private ResponseEntity<?> createShortenedUrl(@AuthenticationPrincipal UserDetails userDetails,  @RequestBody @Valid ShortenUrlRequest shortenUrlRequest) {
         return urlService.createShortenedUrl(userDetails.getUsername(), shortenUrlRequest);
     }
 
