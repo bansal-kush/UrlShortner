@@ -3,6 +3,8 @@ package com.app.UrlShortener.service;
 import com.app.UrlShortener.Repository.UrlsRepository;
 import com.app.UrlShortener.Repository.UserRepository;
 
+import com.app.UrlShortener.exception.CustomUrlAlreadyExistsException;
+import com.app.UrlShortener.exception.UserNotFoundException;
 import com.app.UrlShortener.model.ShortenUrlRequest;
 import com.app.UrlShortener.model.ShortenUrlResponse;
 import com.app.UrlShortener.model.ShortenedUrl;
@@ -30,35 +32,34 @@ public class UrlService {
     private final Random random = new Random();
 
     public ResponseEntity<?> createShortenedUrl(String username, ShortenUrlRequest shortenUrlRequest) {
-        try{
-            String shortUrlToUse = "";
-            if(shortenUrlRequest.getCustomUrl() != null) {
-                if(checkShortLinkExists(shortenUrlRequest.getCustomUrl())) {
-                    return new ResponseEntity<>("URL already in use", HttpStatus.OK);
-                }
-                shortUrlToUse = shortenUrlRequest.getCustomUrl();
+        String shortUrlToUse = "";
+        if(shortenUrlRequest.getCustomUrl() != null) {
+            if(checkShortLinkExists(shortenUrlRequest.getCustomUrl())) {
+                throw new CustomUrlAlreadyExistsException();
             }
-
-            if(shortUrlToUse.isEmpty()) {
-                shortUrlToUse = generateRandomShortUrl();
-            }
-
-            ShortenedUrl shortenedUrl = new ShortenedUrl();
-            shortenedUrl.setLongUrl(shortenUrlRequest.getLongUrl());
-            shortenedUrl.setShortUrl(shortUrlToUse);
-            User user = userRepository.findUserByUsername(username);
-            shortenedUrl.setUser(user);
-            List<ShortenedUrl> shortenedUrls = user.getShortenedUrls();
-            shortenedUrls.add(shortenedUrl);
-            userRepository.save(user);
-            ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse();
-            shortenUrlResponse.setShortUrl(BASE_URL + shortenedUrl.getShortUrl());
-            shortenUrlResponse.setLongUrl(shortenedUrl.getLongUrl());
-
-            return  new ResponseEntity<>(shortenUrlResponse, HttpStatus.OK);
-        }catch(Exception exception) {
-            return new ResponseEntity<>("Failed to shorten Url " +exception.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            shortUrlToUse = shortenUrlRequest.getCustomUrl();
         }
+
+        if(shortUrlToUse.isEmpty()) {
+            shortUrlToUse = generateRandomShortUrl();
+        }
+
+        ShortenedUrl shortenedUrl = new ShortenedUrl();
+        shortenedUrl.setLongUrl(shortenUrlRequest.getLongUrl());
+        shortenedUrl.setShortUrl(shortUrlToUse);
+        User user = userRepository.findUserByUsername(username);
+        if(user == null) {
+            throw new UserNotFoundException();
+        }
+        shortenedUrl.setUser(user);
+        List<ShortenedUrl> shortenedUrls = user.getShortenedUrls();
+        shortenedUrls.add(shortenedUrl);
+        userRepository.save(user);
+        ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse();
+        shortenUrlResponse.setShortUrl(BASE_URL + shortenedUrl.getShortUrl());
+        shortenUrlResponse.setLongUrl(shortenedUrl.getLongUrl());
+
+        return  new ResponseEntity<>(shortenUrlResponse, HttpStatus.OK);
     }
 
     public boolean checkShortLinkExists(String shortUrl) {
