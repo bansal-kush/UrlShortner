@@ -1,6 +1,7 @@
 package com.app.UrlShortener.service;
 
 import com.app.UrlShortener.Repository.UserRepository;
+import com.app.UrlShortener.exception.EmailAlreadyRegisteredException;
 import com.app.UrlShortener.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 public class UserService {
@@ -24,11 +26,10 @@ public class UserService {
             userRepository.save(user);
             return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
         }catch(DataIntegrityViolationException dataIntegrityViolationException) {
-            return new ResponseEntity<>("Email already registered", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new EmailAlreadyRegisteredException();
         }
         catch(Exception exception) {
-
-            return new ResponseEntity<>("Failed to Create User", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

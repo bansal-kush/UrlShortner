@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class UrlController {
     @Autowired
     UrlService urlService;
