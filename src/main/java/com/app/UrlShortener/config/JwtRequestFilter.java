@@ -1,7 +1,6 @@
 package com.app.UrlShortener.config;
 
 import com.app.UrlShortener.Utils.JwtUtil;
-import com.app.UrlShortener.exception.InvalidTokenException;
 import com.app.UrlShortener.service.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -31,6 +30,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,@NonNull FilterChain chain)
             throws ServletException, IOException {
         try{
+
             JwtUtil jwtUtil = applicationContext.getBean(JwtUtil.class);
             final String authorizationHeader = request.getHeader("Authorization");
             String username = null;
@@ -40,7 +40,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 jwt = authorizationHeader.substring(7);
                 username = jwtUtil.extractUsername(jwt);
             }
-
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = applicationContext.getBean(CustomUserDetailsService.class).loadUserByUsername(username);
@@ -58,11 +57,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }catch (SignatureException signatureException) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"" + "Jwt signature not valid" + "\"}");
+            response.getWriter().write("{\"message\": \"" + "Jwt signature not valid" + "\"}");
         }catch (ExpiredJwtException expiredJwtException) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"" + "Jwt Token Expired" + "\"}");
+            response.getWriter().write("{\"message\": \"" + "Jwt Token Expired" + "\"}");
         }
 
     }
