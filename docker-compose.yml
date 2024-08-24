@@ -1,0 +1,31 @@
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: url-shortener
+      POSTGRES_PASSWORD: shortener
+      POSTGRES_DB: UrlShortener
+    ports:
+      - 5433:5432
+    networks:
+      - url-network
+    volumes:
+      - postgres-url-data:/var/lib/postgresql/data
+  app:
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/UrlShortener
+      - SPRING_DATASOURCE_USERNAME=url-shortener
+      - SPRING_DATASOURCE_PASSWORD=shortener
+    build: .
+    ports:
+      - 8080:8080
+    networks:
+      - url-network
+
+networks:
+  url-network:
+    driver: bridge
+
+volumes:
+  postgres-url-data:
