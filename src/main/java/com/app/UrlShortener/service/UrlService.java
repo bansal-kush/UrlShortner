@@ -96,15 +96,13 @@ public class UrlService {
             redirectView.setUrl(longUrl);
             return redirectView;
         }catch (Exception exception) {
-            System.out.println("Invalid url hit " + exception.getMessage());
+            System.out.println("Invalid url hit");
             return new RedirectView("https://en.wikipedia.org/wiki/HTTP_404");
         }
     }
     private String getLongUrlForShortUrl(String shortUrl) throws Exception {
         ShortenedUrl shortenedUrlFromCache = urlCacheService.getCachedUrl(shortUrl);
-        System.out.println(shortenedUrlFromCache);
         if(shortenedUrlFromCache!=null) {
-            System.out.println("Cache hit");
             return shortenedUrlFromCache.getLongUrl();
         }
         ShortenedUrl shortenedUrlFromDb = urlsRepository.findByShortUrl(shortUrl);
