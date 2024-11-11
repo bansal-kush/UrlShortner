@@ -25,6 +25,9 @@ public class UrlService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UrlCacheService urlCacheService;
+
     private static final int NUM_CHARS_SHORT_LINK = 7;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static  final String BASE_URL = "http://localhost:8080/";
@@ -89,13 +92,27 @@ public class UrlService {
         try{
 
             RedirectView redirectView = new RedirectView();
-            ShortenedUrl shortenedUrl = urlsRepository.findByShortUrl(shortUrl);
-            redirectView.setUrl(shortenedUrl.getLongUrl());
+            String longUrl = getLongUrlForShortUrl(shortUrl);
+            redirectView.setUrl(longUrl);
             return redirectView;
         }catch (Exception exception) {
-            System.out.println("Invalid url hit");
+            System.out.println("Invalid url hit " + exception.getMessage());
             return new RedirectView("https://en.wikipedia.org/wiki/HTTP_404");
         }
+    }
+    private String getLongUrlForShortUrl(String shortUrl) throws Exception {
+        ShortenedUrl shortenedUrlFromCache = urlCacheService.getCachedUrl(shortUrl);
+        System.out.println(shortenedUrlFromCache);
+        if(shortenedUrlFromCache!=null) {
+            System.out.println("Cache hit");
+            return shortenedUrlFromCache.getLongUrl();
+        }
+        ShortenedUrl shortenedUrlFromDb = urlsRepository.findByShortUrl(shortUrl);
+        if(shortenedUrlFromDb == null) {
+            throw new Exception();
+        }
+        urlCacheService.cacheUrl(shortUrl, shortenedUrlFromDb);
+        return shortenedUrlFromDb.getLongUrl();
     }
 }
 
