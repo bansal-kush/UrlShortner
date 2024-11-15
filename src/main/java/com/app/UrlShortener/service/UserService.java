@@ -3,6 +3,7 @@ package com.app.UrlShortener.service;
 import com.app.UrlShortener.Repository.UserRepository;
 import com.app.UrlShortener.exception.EmailAlreadyRegisteredException;
 import com.app.UrlShortener.exception.UserNotFoundException;
+import com.app.UrlShortener.model.QrCode;
 import com.app.UrlShortener.model.ShortenedUrl;
 import com.app.UrlShortener.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,20 @@ public class UserService {
             List<ShortenedUrl> shortenedUrls = user.getShortenedUrls();
             return new ResponseEntity<>(shortenedUrls, HttpStatus.OK);
         }catch(Exception exception) {
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<?> getAllQrCodes(String username) {
+        try{
+            User user = userRepository.findUserByUsername(username);
+            if(user == null){
+                throw new UserNotFoundException();
+            }
+            List<QrCode> qrCodes = user.getQrCodes();
+            return new ResponseEntity<>(qrCodes, HttpStatus.OK);
+        }
+        catch (Exception exception){
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -44,7 +44,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/auth/login", "/auth/register","/error").permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/create"), new AntPathRequestMatcher("/user/**")).hasAuthority("USER")
+                        .requestMatchers(new AntPathRequestMatcher("/create"), new AntPathRequestMatcher("/user/**"), new AntPathRequestMatcher("/qr/**")).hasAuthority("USER")
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
                 ) .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
