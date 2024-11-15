@@ -1,10 +1,13 @@
 package com.app.UrlShortener.model;
 
+import com.app.UrlShortener.Repository.QrCodeRepository;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -21,9 +24,11 @@ public class User {
     private String username;
     @NotBlank(message = "Password cannot be blank")
     private String password;
-
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<ShortenedUrl> shortenedUrls;
 
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<QrCode> qrCodes;
 }

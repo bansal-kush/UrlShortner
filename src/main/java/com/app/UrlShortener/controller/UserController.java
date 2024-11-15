@@ -21,4 +21,8 @@ public class UserController {
     public ResponseEntity<?> getAllUrls(@AuthenticationPrincipal UserDetails userDetails) {
         return userService.getAllUrls(userDetails.getUsername());
     }
+    @GetMapping("/qrCodes")
+    public ResponseEntity<?> getAllQrCodes(@AuthenticationPrincipal UserDetails userDetails) {
+        return userService.getAllQrCodes(userDetails.getUsername());
+    }
 }
