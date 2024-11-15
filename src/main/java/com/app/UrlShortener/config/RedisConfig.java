@@ -20,6 +20,7 @@ public class RedisConfig {
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
 
+        // Use Jackson2JsonRedisSerializer for the values (custom class)
         Jackson2JsonRedisSerializer<ShortenedUrl> jsonSerializer = new Jackson2JsonRedisSerializer<>(ShortenedUrl.class);
         template.setValueSerializer(jsonSerializer);
         template.setHashValueSerializer(jsonSerializer);
